@@ -1,0 +1,63 @@
+﻿@model CountryDropApp.Models.CountryModel
+<div>
+    <label for="labelcountryDropdown">Country:</label>
+    @(Model!=null)
+    {
+    <select id="countryDropdown">
+        <option value="">Select a country</option>
+        @foreach (var country in Model.countries)
+        {
+            <option value="@country.Id">@country.Name</option>
+        }
+
+    </select>
+    }
+    
+</div>
+
+<div>
+    <label for="stateDropdown">State:</label>
+    <select id="stateDropdown">
+        <option value="">Select a state</option>
+    </select>
+</div>
+
+<div>
+    <button type="button" class="btn btn-primary">Add Others</button>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script defer>
+    $(document).ready(function () {
+        $('#countryDropdown').change(function () {
+            var selectedCountryId = $(this).val();
+            console.log('Selected country ID:', selectedCountryId);
+            loadStates(selectedCountryId);
+        });
+    });
+    function loadStates(countryId) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var states = JSON.parse(xhr.responseText);
+                    populateStatesDropdown(states);
+                } else {
+                    console.error('Failed to fetch states');
+                }
+            }
+        };
+        xhr.open('GET', '/Country/GetStates?countryId=' + countryId, true);
+        xhr.send();
+    }
+
+    function populateStatesDropdown(states) {
+        var stateDropdown = document.getElementById("stateDropdown");
+        stateDropdown.innerHTML = "";
+        for (var i = 0; i < states.length; i++) {
+            var option = document.createElement("option");
+            option.text = states[i].name;
+            option.value = states[i].id;
+            stateDropdown.appendChild(option);
+        }
+    }
+</script>
